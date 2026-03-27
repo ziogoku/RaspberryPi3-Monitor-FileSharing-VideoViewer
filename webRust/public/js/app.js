@@ -25,7 +25,6 @@ async function updateStats() {
         const data = await response.json();
 
         // Inserimento dati nelle card
-
         tempEl.innerText = data.cpu.temp;
         document.getElementById('cpu-load').innerText = data.cpu.usage;
         document.getElementById('ram-usage-percent').innerText = data.ram.usage_percent;
@@ -56,7 +55,8 @@ async function updateStats() {
 
 // --- 2. NAVIGAZIONE E CARICAMENTO ---
 async function includeHTML(elementId, fileName) {
-    const response = await fetch(fileName);
+    const cacheBuster = `?v=${new Date().getTime()}`;
+    const response = await fetch(fileName + cacheBuster);
     if (!response.ok) throw new Error(`Errore: ${response.status}`);
     const text = await response.text();
     document.getElementById(elementId).innerHTML = text;
@@ -101,6 +101,26 @@ function highlightSidebar(activePage) {
     });
 }
 
+// --- 4. GESTIONE MENU MOBILE (Hamburger) ---
+function initMobileMenu() {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (menuBtn && sidebar) {
+        menuBtn.onclick = (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle('active');
+        };
+
+        // Chiudi cliccando fuori
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('active') && !sidebar.contains(e.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+    }
+}
+
 // --- 4. AVVIO DELL'APP E GESTIONE EVENTI ---
 window.addEventListener('DOMContentLoaded', async () => {
     // Caricamento scheletro
@@ -109,6 +129,9 @@ window.addEventListener('DOMContentLoaded', async () => {
         includeHTML('header-placeholder', 'parts/header.html'),
         includeHTML('footer-placeholder', 'parts/footer.html')
     ]);
+
+    // Inizializza menu mobile dopo che l'header è stato caricato
+    initMobileMenu();
 
     // Gestione Click Sidebar (Delegation)
     // Intercettiamo i click sulla sidebar-placeholder anche se il contenuto è dinamico

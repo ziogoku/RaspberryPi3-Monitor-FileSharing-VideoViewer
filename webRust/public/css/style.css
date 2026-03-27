@@ -133,14 +133,53 @@ body {
     cursor: pointer;
 }
 
+/* Aggiungi queste regole nel tuo style.css */
+
+.menu-toggle {
+    display: none;
+    /* Nascosto su desktop */
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-    .sidebar {
-        width: 0;
+
+    .menu-toggle {
+        display: block;
+        /* Visibile solo su smartphone */
     }
 
+    .sidebar {
+        /* Invece di traslare, giochiamo sulla posizione fissa */
+        left: -240px;
+        top: 0;
+        width: 240px;
+        height: 100vh;
+        position: fixed;
+        transition: left 0.3s ease;
+        /* Animiamo la proprietà left */
+        visibility: hidden;
+        z-index: 9999;
+        /* Sopra a tutto */
+    }
+
+    /* Classe che applicheremo via JS */
+    .sidebar.active {
+        left: 0;
+        /* Si blocca esattamente al bordo sinistro */
+        visibility: visible;
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Impediamo al contenuto principale di schiacciarsi su mobile */
     #main-content-wrapper {
-        margin-left: 0;
-        width: 100%;
+        margin-left: 0 !important;
+        width: 100% !important;
     }
 }

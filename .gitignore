@@ -25,3 +25,4 @@ share/
 .DS_Store
 .vscode/
 *.env
+info.txt
