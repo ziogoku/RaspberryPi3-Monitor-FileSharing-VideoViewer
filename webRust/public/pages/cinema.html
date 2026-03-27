@@ -1,0 +1,27 @@
+<div class="cinema-layout">
+    <div class="cinema-sidebar">
+        <div class="sidebar-header">
+            <h4>🎬 Playlist</h4>
+            <button id="refresh-cinema" class="btn-sm">🔄</button>
+        </div>
+        <div id="video-list" class="video-playlist">
+        </div>
+    </div>
+
+    <div class="cinema-main">
+        <div class="cinema-header">
+            <h3 id="video-title">Seleziona un video</h3>
+            <button id="close-player" class="btn-danger">✖</button>
+        </div>
+
+        <div class="video-wrapper">
+            <video id="main-player" controls autoplay>
+                <source src="" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="cinema-info">
+            <p>Streaming diretto da Raspberry Pi 3 • <span id="video-filename">-</span></p>
+        </div>
+    </div>
+</div>

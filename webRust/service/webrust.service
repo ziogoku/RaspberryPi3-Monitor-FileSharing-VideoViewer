@@ -1,0 +1,18 @@
+[Unit]
+Description=Rust Web Server (Porta 3000)
+After=network.target
+
+[Service]
+User=vins
+WorkingDirectory=/home/vins/apps/webRust
+# QUI LA MODIFICA: Puntiamo direttamente al binario compilato
+ExecStart=/home/vins/apps/webRust/target/release/rasp-web-server
+# Riavvia l'app automaticamente se crasha
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=rust-web
+
+[Install]
+WantedBy=multi-user.target

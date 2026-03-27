@@ -1,0 +1,146 @@
+/* --- style.css (ORDINE CORRETTO) --- */
+
+/* 1. GLI IMPORT DEVONO STARE IN CIMA, PRIMA DI TUTTO */
+@import url('monitor.css');
+@import url('cinema.css');
+@import url('filemanager.css');
+
+/* 2. VARIABILI GLOBALI */
+:root {
+    --primary-bg: #121212;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --text-color: #e0e0e0;
+    --accent-cpu: #ff4757;
+    --accent-ram: #2ed573;
+    --accent-disk: #1e90ff;
+    --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --sidebar-width: 240px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- SIDEBAR DI NAVIGAZIONE --- */
+.sidebar {
+    height: 100vh;
+    width: var(--sidebar-width);
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    background-color: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-x: hidden;
+    padding-top: 20px;
+    transition: 0.3s;
+}
+
+.sidebar-header {
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h2 {
+    font-size: 1rem;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.sidebar a {
+    padding: 15px 20px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.sidebar a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar a.active {
+    color: var(--accent-ram);
+    border-left: 3px solid var(--accent-ram);
+    background: rgba(46, 213, 115, 0.1);
+}
+
+.nav-icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 15px;
+    background: #444;
+}
+
+/* --- MAIN LAYOUT WRAPPER --- */
+#main-content-wrapper {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-header {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* --- BOTTONI GENERICI --- */
+.btn-primary {
+    background: var(--accent-ram);
+    color: #000;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0;
+    }
+
+    #main-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+}

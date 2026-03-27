@@ -1,0 +1,110 @@
+/* --- MONITOR / DASHBOARD STYLES --- */
+
+header {
+    margin-top: 2rem;
+    text-align: center;
+    width: 100%;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Card Style */
+.card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 250px;
+    flex-grow: 1;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    border: 1px rgba(255, 255, 255, 0.1) solid;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    border-bottom: 1px rgba(255, 255, 255, 0.1) solid;
+}
+
+.card-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.card-subvalue {
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+/* Bordi colorati specifici */
+.cpu-card {
+    border-top: 4px solid var(--accent-cpu);
+}
+
+.ram-card {
+    border-top: 4px solid var(--accent-ram);
+}
+
+.disk-card {
+    border-top: 4px solid var(--accent-disk);
+}
+
+/* Status Dot (Online/Offline) */
+.status-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.status-online {
+    background-color: var(--accent-ram);
+}
+
+.status-offline {
+    background-color: var(--accent-cpu);
+}
+
+/* Pulsante Refresh (se lo usi solo in Monitor) */
+.btn-refresh {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-refresh:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-ram);
+}

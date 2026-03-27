@@ -1,0 +1,68 @@
+/* filemanager.css */
+
+.fm-grid {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 2px dashed rgba(255, 255, 255, 0.1);
+    min-height: 450px;
+    /* Più spazio cliccabile */
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.fm-grid.drag-over {
+    background: rgba(46, 213, 115, 0.08);
+    border-color: var(--accent-ram);
+    transform: scale(1.01);
+}
+
+.file-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.file-row:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.file-row .name {
+    flex: 1;
+    margin-left: 15px;
+    font-weight: 400;
+    color: #ddd;
+}
+
+.file-row.is-dir .name {
+    color: #ffca28;
+    /* Giallo cartella */
+    font-weight: 600;
+}
+
+#upload-status {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(46, 213, 115, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#upload-status:hover {
+    background: rgba(46, 213, 115, 0.2);
+}
+
+.empty-folder-msg {
+    margin: auto;
+    text-align: center;
+    opacity: 0.4;
+}
+
+.empty-folder-msg span {
+    font-size: 3rem;
+}

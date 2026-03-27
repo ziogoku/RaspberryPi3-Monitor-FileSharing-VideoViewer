@@ -1,0 +1,27 @@
+# --- NODE.JS (Cartella /app) ---
+app/node_modules/
+app/npm-debug.log*
+app/package-lock.json (Opzionale: tienilo se vuoi versioni fisse)
+app/tmp/
+
+# --- RUST WEBSERVER (Cartella /webRust) ---
+webRust/target/
+webRust/Cargo.lock
+
+# --- ASSETS PESANTI E CARICAMENTI ---
+# Escludiamo i file multimediali che carichi nel public
+webRust/public/assets/videos/*
+webRust/public/assets/uploads/*
+
+# Mantieni le cartelle anche se vuote
+!webRust/public/assets/videos/.gitkeep
+!webRust/public/assets/uploads/.gitkeep
+
+# --- CARTELLE "MORTE" O DA IGNORARE ---
+web/
+share/
+
+# --- VARIE ---
+.DS_Store
+.vscode/
+*.env

@@ -1,0 +1,22 @@
+[Unit]
+Description=Node.js App ApiRest(Porta 3001)
+After=network.target
+
+[Service]
+# L'utente che esegue l'app 
+User=root
+# La cartella radice della tua app
+WorkingDirectory=/home/vins/apps/app
+# Il comando per far partire l'app
+ExecStart=/usr/bin/node app.js
+# Riavvia l'app automaticamente se crasha
+Restart=always
+# Aspetta 5 secondi prima di riavviare
+RestartSec=5
+# Invia i log al sistema (consultabili con journalctl)
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=node-web
+
+[Install]
+WantedBy=multi-user.target
