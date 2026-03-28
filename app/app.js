@@ -7,11 +7,16 @@ const fs = require('fs/promises');
 const fsSync = require('fs');
 const path = require('path');
 const multer = require('multer');
-const upload = multer({ dest: '/tmp/' }); // Caricamento temporaneo
+const upload = multer({
+    dest: '/tmp/',
+    limits: { fileSize: 505 * 1024 * 1024 } // 500MB
+
+}); // Caricamento temporaneo
 const { PORT, DB_CONFIG, USB_PATH } = require('./config');
 
 
-app.use(express.json());
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(cors());
 
 const pool = mysql.createPool(DB_CONFIG);
