@@ -1,7 +1,7 @@
 use axum::{routing::get, Json, Router};
-use tower_http::services::ServeDir;
 use serde::Serialize;
 use std::net::SocketAddr;
+use tower_http::services::ServeDir;
 
 #[derive(Serialize)]
 struct Status {
@@ -12,13 +12,15 @@ struct Status {
 
 #[tokio::main]
 async fn main() {
+    let static_files_service = ServeDir::new("public").append_index_html_on_directories(true);
+
     // Rotta API
     let api_router = Router::new().route("/status", get(get_status));
 
     // Router principale: gestisce /api e tutto il resto come file statici in /public
     let app = Router::new()
         .nest("/api", api_router)
-        .fallback_service(ServeDir::new("public"));
+        .fallback_service(static_files_service);
 
     let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     println!("✅ Rust Server 1.94 avviato su http://raspberry.local:3000");
