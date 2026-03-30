@@ -87,22 +87,62 @@ app.get('/info', async (req, res) => {
     }
 });
 
+const validatePath = (userPath) => {
+    // 1. Risolvi il percorso assoluto della USB (la tua root sicura)
+    const rootPath = path.resolve(USB_PATH);
+
+    // 2. Risolvi il percorso richiesto dall'utente (se manca, usa la root)
+    const requestedPath = path.resolve(userPath || USB_PATH);
+
+    // 3. Verifica se il percorso richiesto inizia con il percorso della root
+    if (!requestedPath.startsWith(rootPath)) {
+        throw new Error("Accesso negato: Tentativo di uscire dalla cartella consentita.");
+    }
+
+    return requestedPath;
+};
+
+const getAbsolutePath = (relativeUserPath) => {
+    const root = path.resolve(USB_PATH);
+    // Uniamo la root fisica con il percorso virtuale del client
+    // .normalize() pulisce eventuali "//" o "./"
+    const safeRelative = path.normalize(relativeUserPath || '/').replace(/^(\.\.(\/|\\|$))+/, '');
+    const absolutePath = path.join(root, safeRelative);
+
+    // Sicurezza: non deve mai uscire dalla root
+    if (!absolutePath.startsWith(root)) {
+        return root; // Forza il ritorno alla base se qualcuno barletta con i path
+    }
+    return absolutePath;
+};
+
+const getRelativePath = (absoluteFilePath) => {
+    // Trasforma "/media/pi/USB/cartella/file.txt" in "/cartella/file.txt"
+    const root = path.resolve(USB_PATH);
+    let relative = absoluteFilePath.replace(root, '');
+    if (!relative.startsWith('/')) relative = '/' + relative;
+    return relative;
+};
+
 
 // GET: Legge il contenuto di una directory
 app.get('/files', async (req, res) => {
-    const targetPath = req.query.path || USB_PATH; // Path di default per il Pi
+
 
     try {
+        const targetPath = getAbsolutePath(req.query.path);
         const files = await fs.readdir(targetPath, { withFileTypes: true });
 
         const content = files.map(file => ({
             name: file.name,
             isDirectory: file.isDirectory(),
-            extension: path.extname(file.name)
+            extension: path.extname(file.name),
+            // Al client diamo il path relativo (es. /cartella/foto.png)
+            virtualPath: path.join(getRelativePath(targetPath), file.name)
         }));
 
         res.json({
-            path: targetPath,
+            currentPath: getRelativePath(targetPath), // Il client vedrà "/" o "/cartella"
             items: content
         });
     } catch (err) {
@@ -145,8 +185,12 @@ app.post('/files/write', async (req, res) => {
 
 // DOWNLOAD: Invia il file al browser
 app.get('/files/download', (req, res) => {
-    const filePath = req.query.path;
-    res.download(filePath); // Gestisce automaticamente header e stream
+    try {
+        const fullPath = validatePath(req.query.path);
+        res.download(fullPath);
+    } catch (err) {
+        res.status(403).send("Accesso negato");
+    }
 });
 
 // UPLOAD: Riceve il file e lo sposta nel path corretto
@@ -154,7 +198,7 @@ app.post('/files/upload', upload.single('file'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "File non ricevuto" });
 
-        const targetDir = req.body.path;
+        const targetDir = validatePath(req.body.path);
         const fileName = req.file.originalname;
         const finalPath = path.join(targetDir, fileName);
 
@@ -184,7 +228,7 @@ app.post('/files/upload', upload.single('file'), async (req, res) => {
 
 // DELETE: Elimina un file o una cartella
 app.delete('/files/delete', async (req, res) => {
-    const targetPath = req.query.path;
+    const targetPath = validatePath(req.query.path);
 
     if (!targetPath || targetPath === USB_PATH) {
         return res.status(400).json({ error: "Path non valido o protetto" });
@@ -203,7 +247,7 @@ app.delete('/files/delete', async (req, res) => {
 });
 
 app.get('/files/video-stream', (req, res) => {
-    const videoPath = req.query.path;
+    const videoPath = validatePath(req.query.path);
     if (!videoPath) return res.status(400).send("Path mancante");
 
     const stat = fsSync.statSync(videoPath);

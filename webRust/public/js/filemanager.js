@@ -64,7 +64,7 @@ export async function initFileManager() {
         try {
             const res = await fetch(`${API_URL}/files?path=${encodeURIComponent(path)}`);
             const data = await res.json();
-            currentPath = data.path;
+            currentPath = data.currentPath;
             document.getElementById('current-path').innerText = currentPath;
             listElement.innerHTML = '';
 
@@ -110,9 +110,17 @@ export async function initFileManager() {
     }
 
     document.getElementById('back-btn').onclick = () => {
+        if (!currentPath || currentPath === '/') {
+            console.log("Sei già nella cartella principale");
+            return;
+        }
+
         const parts = currentPath.split('/').filter(p => p);
         parts.pop();
-        refreshList('/' + parts.join('/'));
+
+        // Costruiamo il nuovo path. Se parts è vuoto, deve essere '/'
+        const newPath = '/' + parts.join('/');
+        refreshList(newPath);
     };
 
     refreshList();

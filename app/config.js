@@ -17,6 +17,6 @@ module.exports = {
     },
 
     // Configurazione File System (USB)
-    USB_PATH: '/home/vins/apps/share', // Cambia questo nel path reale del tuo mount USB
+    USB_PATH: '/media/maxtor-500/RaspberryP3',
 
 };
