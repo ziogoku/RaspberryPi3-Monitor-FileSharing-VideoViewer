@@ -186,7 +186,7 @@ app.post('/files/write', async (req, res) => {
 // DOWNLOAD: Invia il file al browser
 app.get('/files/download', (req, res) => {
     try {
-        const fullPath = validatePath(req.query.path);
+        const fullPath = getAbsolutePath(req.query.path);
         res.download(fullPath);
     } catch (err) {
         res.status(403).send("Accesso negato");
@@ -198,84 +198,89 @@ app.post('/files/upload', upload.single('file'), async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ error: "File non ricevuto" });
 
-        const targetDir = validatePath(req.body.path);
-        const fileName = req.file.originalname;
+        const targetDir = getAbsolutePath(req.body.path);
+        const fileName = path.basename(req.file.originalname); // Sicurezza sul nome
         const finalPath = path.join(targetDir, fileName);
 
-        // Debug: vediamo cosa arriva
-        console.log(`Caricamento: ${fileName} -> ${finalPath}`);
-
-        // 1. Assicuriamoci che la destinazione esista
         if (!fsSync.existsSync(targetDir)) {
             return res.status(400).json({ error: "La cartella di destinazione non esiste" });
         }
 
-        // 2. Copiamo il file dal percorso temporaneo Multer alla USB
         await fs.copyFile(req.file.path, finalPath);
-
-        // 3. Cancelliamo il file temporaneo creato da Multer in /tmp
         await fs.unlink(req.file.path);
 
-        res.json({ message: "Caricato con successo", file: fileName });
+        res.json({ message: "Caricato con successo", path: getRelativePath(finalPath) });
     } catch (err) {
-        console.error("ERRORE SERVER 500:", err);
-        res.status(500).json({
-            error: "Errore interno al server",
-            detail: err.message
-        });
+        if (req.file) await fs.unlink(req.file.path).catch(() => { });
+        res.status(500).json({ error: err.message });
     }
 });
 
 // DELETE: Elimina un file o una cartella
 app.delete('/files/delete', async (req, res) => {
-    const targetPath = validatePath(req.query.path);
-
-    if (!targetPath || targetPath === USB_PATH) {
-        return res.status(400).json({ error: "Path non valido o protetto" });
-    }
-
     try {
-        // recursive: true permette di eliminare cartelle non vuote
-        // force: true evita errori se il file non esiste
-        await fs.rm(targetPath, { recursive: true, force: true });
+        const targetPath = getAbsolutePath(req.query.path);
 
-        console.log(`Eliminato: ${targetPath}`);
+        // Impediamo di cancellare la root stessa
+        if (targetPath === path.resolve(USB_PATH)) {
+            return res.status(400).json({ error: "Impossibile eliminare la root" });
+        }
+
+        await fs.rm(targetPath, { recursive: true, force: true });
         res.json({ message: "Eliminato con successo" });
     } catch (err) {
-        res.status(500).json({ error: "Errore durante l'eliminazione", detail: err.message });
+        res.status(500).json({ error: err.message });
     }
 });
 
 app.get('/files/video-stream', (req, res) => {
-    const videoPath = validatePath(req.query.path);
-    if (!videoPath) return res.status(400).send("Path mancante");
+    try {
+        const videoPath = getAbsolutePath(req.query.path);
 
-    const stat = fsSync.statSync(videoPath);
-    const fileSize = stat.size;
-    const range = req.headers.range;
+        if (!fsSync.existsSync(videoPath)) return res.status(404).send("File non trovato");
 
-    if (range) {
-        const parts = range.replace(/bytes=/, "").split("-");
-        const start = parseInt(parts[0], 10);
-        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-        const chunksize = (end - start) + 1;
-        const file = fsSync.createReadStream(videoPath, { start, end });
+        const stat = fsSync.statSync(videoPath);
+        const fileSize = stat.size;
+        const range = req.headers.range;
 
-        const head = {
-            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
-            'Content-Length': chunksize,
-            'Content-Type': 'video/mp4', // Funziona bene con mp4, mkv, webm
-        };
-        res.writeHead(206, head);
-        file.pipe(res);
-    } else {
-        const head = {
-            'Content-Length': fileSize,
-            'Content-Type': 'video/mp4',
-        };
-        res.writeHead(200, head);
-        fsSync.createReadStream(videoPath).pipe(res);
+        if (range) {
+            const parts = range.replace(/bytes=/, "").split("-");
+            const start = parseInt(parts[0], 10);
+            const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+            const chunksize = (end - start) + 1;
+            const file = fsSync.createReadStream(videoPath, { start, end });
+
+            const head = {
+                'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                'Accept-Ranges': 'bytes',
+                'Content-Length': chunksize,
+                'Content-Type': 'video/mp4',
+            };
+            res.writeHead(206, head);
+            file.pipe(res);
+        } else {
+            const head = {
+                'Content-Length': fileSize,
+                'Content-Type': 'video/mp4',
+            };
+            res.writeHead(200, head);
+            fsSync.createReadStream(videoPath).pipe(res);
+        }
+    } catch (err) {
+        res.status(403).send("Errore accesso file");
+    }
+});
+
+app.post('/files/write', async (req, res) => {
+    try {
+        const { fileName, content, subDir } = req.body;
+        const targetDir = getAbsolutePath(subDir);
+        const finalPath = path.join(targetDir, path.basename(fileName));
+
+        await fs.writeFile(finalPath, content, 'utf8');
+        res.json({ message: "File salvato", path: getRelativePath(finalPath) });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

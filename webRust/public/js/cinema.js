@@ -29,12 +29,12 @@ export async function initCinema() {
                     <span class="name">${item.name}</span>
                 `;
 
-                div.onclick = () => {
-                    const fullPath = `${data.path}/${item.name}`.replace(/\/+/g, '/');
+                div.onclick = (event) => {
+                    const targetPath = item.virtualPath;
                     if (item.isDirectory) {
-                        loadPlaylist(fullPath); // Naviga nella sottocartella
+                        loadPlaylist(targetPath); // Naviga nella sottocartella
                     } else {
-                        playVideo(fullPath, item.name);
+                        playVideo(targetPath, item.name, event.currentTarget);
                     }
                 };
                 videoList.appendChild(div);
@@ -44,17 +44,17 @@ export async function initCinema() {
         }
     }
 
-    function playVideo(fullPath, name) {
+    function playVideo(virtualPath, name, element) {
         title.innerText = name;
         filenameEl.innerText = name;
-        const streamUrl = `${API_URL}/files/video-stream?path=${encodeURIComponent(fullPath)}`;
+        const streamUrl = `${API_URL}/files/video-stream?path=${encodeURIComponent(virtualPath)}`;
         player.src = streamUrl;
         player.load();
         player.play();
 
         // Evidenzia il video attivo
         document.querySelectorAll('.video-item').forEach(el => el.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        if (element) element.classList.add('active');
     }
 
     document.getElementById('refresh-cinema').onclick = () => loadPlaylist();
